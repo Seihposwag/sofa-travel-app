@@ -1,0 +1,156 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f8;
+  color: #333;
+}
+
+nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding: 20px 10%;
+  background: #0d6efd;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+header {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+}
+
+header h1 {
+  margin-bottom: 16px;
+  font-size: 42px;
+}
+
+header p {
+  max-width: 700px;
+  margin: 0 auto;
+  color: #666;
+  font-size: 18px;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.offers-section {
+  margin-bottom: 80px;
+}
+
+.offers-section h2,
+.consultation-section h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 32px;
+}
+
+.offers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+
+.offer-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease;
+}
+
+.offer-card:hover {
+  transform: translateY(-4px);
+}
+
+.offer-card h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.offer-card p {
+  margin-bottom: 12px;
+}
+
+.consultation-section {
+  background: white;
+  padding: 50px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+.consultation-section > p {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 40px;
+  color: #666;
+}
+
+.phone-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.phone-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+}
+
+.phone-card h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.phone-card a {
+  color: #0d6efd;
+  font-size: 20px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.phone-card a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  margin-top: 60px;
+  background: #212529;
+  color: white;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  header h1 {
+    font-size: 32px;
+  }
+
+  .consultation-section {
+    padding: 30px;
+  }
+}
