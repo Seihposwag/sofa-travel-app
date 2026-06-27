@@ -33,7 +33,7 @@ export const homePage = Page(
         <div class="destinations">
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800" alt="Токио">
+                <img src="/images/tokyo.jpg" alt="Токио">
                 <div class="card-content">
                     <h3>Токио</h3>
                     <p>Современные технологии, культура и удивительная кухня Японии.</p>
@@ -41,7 +41,7 @@ export const homePage = Page(
             </div>
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800" alt="Париж">
+                <img src="/images/paris.jpg" alt="Париж">
                 <div class="card-content">
                     <h3>Париж</h3>
                     <p>Город любви, искусства и легендарной Эйфелевой башни.</p>
@@ -49,7 +49,7 @@ export const homePage = Page(
             </div>
 
             <div class="card">
-                <img src="https://images.unsplash.com/photo-1537953773345-d172ccf13cf1?w=800" alt="Бали">
+                <img src="/images/bali.jpg" alt="Бали">
                 <div class="card-content">
                     <h3>Бали</h3>
                     <p>Тропические пляжи, экзотическая природа и отдых мечты.</p>
