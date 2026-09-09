@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -28,6 +28,7 @@ def _published_tours():
         Tour.objects.filter(is_published=True)
         .select_related("country", "author")
         .annotate(reviews_total=Count("reviews", filter=Q(reviews__is_active=True)))
+        .order_by("-created_at")
     )
 
 
@@ -103,7 +104,10 @@ def tour_detail(request, pk):
         messages.warning(request, "Этот тур снят с публикации.")
         return redirect("tours:tour_list")
 
-    Tour.objects.filter(pk=tour.pk).update(views=tour.views + 1)
+    # Инкремент на стороне БД исключает потерю просмотров при
+    # одновременных запросах, refresh_from_db возвращает актуальное значение.
+    Tour.objects.filter(pk=tour.pk).update(views=F("views") + 1)
+    tour.refresh_from_db(fields=["views"])
 
     in_favorites = (
         request.user.is_authenticated
@@ -202,6 +206,7 @@ def my_tours(request):
         Tour.objects.filter(author=request.user)
         .select_related("country")
         .annotate(reviews_total=Count("reviews"))
+        .order_by("-created_at")
     )
     return render(
         request,

@@ -1,0 +1,7 @@
+<div class="border-bottom py-3 review-item">
+  <div class="d-flex justify-content-between align-items-baseline">
+    <strong>{{ review.author.display_name }}</strong>
+    <span class="text-secondary small">{{ review.created_at|date:"d.m.Y H:i" }}</span>
+  </div>
+  <p class="mb-0 mt-1">{{ review.text|linebreaksbr }}</p>
+</div>

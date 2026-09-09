@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="h3 mb-4">{{ page_title }}</h1>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" class="rounded-circle mb-3 profile-avatar" alt="Аватар">
+          {% else %}
+            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3 profile-avatar">
+              <span class="h2 text-secondary mb-0">{{ user.username|slice:":1"|upper }}</span>
+            </div>
+          {% endif %}
+
+          <h2 class="h5 mb-0">{{ user.display_name }}</h2>
+          <p class="text-secondary small">{{ user.role }}</p>
+
+          <dl class="row text-start small mb-0">
+            <dt class="col-7 text-secondary fw-normal">Опубликовано туров</dt>
+            <dd class="col-5 text-end mb-1">{{ tours_total }}</dd>
+            <dt class="col-7 text-secondary fw-normal">В избранном</dt>
+            <dd class="col-5 text-end mb-1">{{ favorites_total }}</dd>
+            <dt class="col-7 text-secondary fw-normal">Оставлено отзывов</dt>
+            <dd class="col-5 text-end mb-1">{{ reviews_total }}</dd>
+            <dt class="col-7 text-secondary fw-normal">Дата регистрации</dt>
+            <dd class="col-5 text-end mb-0">{{ user.date_joined|date:"d.m.Y" }}</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Личные данные</h2>
+
+          <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+              <div class="mb-3">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:" " }}</div>{% endif %}
+              </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-brand">Сохранить</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

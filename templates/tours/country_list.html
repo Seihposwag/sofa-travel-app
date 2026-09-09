@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="h3 mb-4">{{ page_title }}</h1>
+
+  <div class="row g-3">
+    {% for country in countries %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h2 class="h5">
+              <a href="{{ country.get_absolute_url }}" class="text-decoration-none">{{ country.title }}</a>
+            </h2>
+            <p class="card-text text-secondary small">
+              {{ country.description|default:"Описание направления пока не добавлено."|truncatewords:22 }}
+            </p>
+          </div>
+          <div class="card-footer bg-white text-secondary small">Предложений: {{ country.total }}</div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="alert alert-light border">Направления пока не добавлены.</div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-4">
+    <h1 class="h3 mb-0">{{ page_title }}</h1>
+    <span class="text-secondary small">Найдено предложений: {{ page_obj.paginator.count }}</span>
+  </div>
+
+  {% if country and country.description %}
+    <p class="text-secondary">{{ country.description }}</p>
+  {% endif %}
+
+  {% if query %}
+    <p class="text-secondary">Результаты поиска по запросу «{{ query }}».</p>
+  {% endif %}
+
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="list-group list-group-flush border rounded">
+        <span class="list-group-item bg-light fw-semibold">Направления</span>
+        {% for item in countries %}
+          <a class="list-group-item list-group-item-action d-flex justify-content-between {% if country and country.pk == item.pk %}active{% endif %}"
+             href="{{ item.get_absolute_url }}">
+            {{ item.title }}<span class="badge text-bg-secondary">{{ item.total }}</span>
+          </a>
+        {% empty %}
+          <span class="list-group-item text-secondary">Направления пока не добавлены</span>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="row g-3">
+        {% for tour in page_obj %}
+          {% include "inc/tour_card.html" with tour=tour %}
+        {% empty %}
+          <div class="col-12">
+            <div class="alert alert-light border">
+              {{ empty_hint|default:"По вашему запросу туры не найдены." }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% include "inc/pagination.html" %}
+    </div>
+  </div>
+{% endblock %}

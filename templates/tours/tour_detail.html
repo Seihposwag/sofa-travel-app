@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+  <nav aria-label="Навигация по разделам">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'tours:tour_list' %}">Каталог</a></li>
+      <li class="breadcrumb-item"><a href="{{ tour.country.get_absolute_url }}">{{ tour.country.title }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ tour.title }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      {% if tour.photo %}
+        <img src="{{ tour.photo.url }}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% else %}
+        <img src="{% static 'images/hero-beach.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% endif %}
+
+      <h1 class="h3">{{ tour.title }}</h1>
+      <p class="text-secondary small">
+        Направление: <a href="{{ tour.country.get_absolute_url }}">{{ tour.country.title }}</a> ·
+        Автор: {{ tour.author.display_name|default:"не указан" }} ·
+        Опубликовано {{ tour.created_at|date:"d.m.Y" }} ·
+        Просмотров: {{ tour.views }}
+      </p>
+
+      {% if not tour.is_published %}
+        <div class="alert alert-warning">Тур снят с публикации и виден только вам.</div>
+      {% endif %}
+
+      <p>{{ tour.description|linebreaksbr }}</p>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-baseline">
+            <span class="h4 text-brand mb-0">{{ tour.price|floatformat:0 }} ₽</span>
+            <span class="text-secondary">{{ tour.duration_days }} дней</span>
+          </div>
+          <hr>
+
+          {% if user.is_authenticated %}
+            <button class="btn w-100 mb-2 {% if in_favorites %}btn-brand{% else %}btn-outline-brand{% endif %}"
+                    id="favoriteBtn"
+                    data-url="{% url 'tours:favorite_toggle_ajax' tour.pk %}">
+              {% if in_favorites %}В избранном{% else %}В избранное{% endif %}
+            </button>
+          {% else %}
+            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-brand w-100 mb-2">
+              Войдите, чтобы сохранить тур
+            </a>
+          {% endif %}
+
+          {% if can_edit %}
+            <div class="d-flex gap-2">
+              <a href="{% url 'tours:tour_update' tour.pk %}" class="btn btn-outline-secondary flex-grow-1">Изменить</a>
+              <a href="{% url 'tours:tour_delete' tour.pk %}" class="btn btn-outline-danger flex-grow-1">Удалить</a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3">
+        <div class="card-body">
+          <h2 class="h6 text-uppercase text-secondary">Бесплатная консультация</h2>
+          <p class="mb-1 small">Москва — <a href="tel:+74951234567">+7 (495) 123-45-67</a></p>
+          <p class="mb-0 small">Ставрополь — <a href="tel:+78652123456">+7 (865) 212-34-56</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="mt-5">
+    <h2 class="h5">Отзывы <span class="text-secondary" id="reviewCount">({{ reviews|length }})</span></h2>
+
+    {% if user.is_authenticated %}
+      <form id="reviewForm" class="mb-3" method="post" action="{% url 'tours:review_add_ajax' tour.pk %}">
+        {% csrf_token %}
+        {{ review_form.text }}
+        <div class="text-danger small mt-1" id="reviewError"></div>
+        <button type="submit" class="btn btn-brand btn-sm mt-2">Отправить отзыв</button>
+      </form>
+    {% else %}
+      <p class="text-secondary">
+        <a href="{% url 'users:login' %}?next={{ request.path }}">Войдите</a>, чтобы оставить отзыв.
+      </p>
+    {% endif %}
+
+    <div id="reviewList">
+      {% for review in reviews %}
+        {% include "inc/review.html" with review=review %}
+      {% empty %}
+        <p class="text-secondary" id="reviewEmpty">Отзывов пока нет — будьте первым.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
