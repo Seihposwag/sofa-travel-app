@@ -1,5 +1,5 @@
 # SWOT-анализ — Travel World SPA
-> Проект: Travel World SPA | Вариант 8 — Блог о путешествиях
+> Проект: Travel World SPA | Вариант 8 — Бюро путешествий (Travel World)
 
 ---
 
