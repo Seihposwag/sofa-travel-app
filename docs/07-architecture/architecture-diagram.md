@@ -1,144 +1,148 @@
-# Архитектурная диаграмма — Travel World SPA
-> Проект: Travel World SPA | Вариант 8 — Бюро путешествий (Travel World)
+# Архитектура. Диаграмма компонентов
+
+Проект: веб-приложение «Бюро путешествий» (Travel World)
+Архитектурный стиль: Django MTV (Model — Template — View)
 
 ---
 
 ## Диаграмма компонентов
 
-![Диаграмма компонентов](components.png)
+```mermaid
+flowchart TB
+    subgraph BROWSER["Браузер"]
+        HTML["HTML-страницы"]
+        JS["main.js<br/>AJAX-запросы"]
+        CSS["Bootstrap 5 + main.css"]
+    end
 
+    subgraph DJANGO["Django"]
+        URLS["config/urls.py<br/>tours/urls.py<br/>users/urls.py"]
+
+        subgraph VIEWS["View — что показать"]
+            TV["tours/views.py<br/>9 представлений"]
+            UV["users/views.py<br/>4 представления"]
+        end
+
+        subgraph TPL["Template — как показать"]
+            BASE["base.html"]
+            PAGES["tours/*.html<br/>users/*.html<br/>inc/*.html"]
+        end
+
+        subgraph MODELS["Model — что хранить"]
+            TM["tours/models.py<br/>Country, Tour, Review, Favorite"]
+            UM["users/models.py<br/>User"]
+        end
+
+        FORMS["forms.py<br/>проверка данных"]
+        ADMIN["admin.py<br/>админ-панель"]
+        AUTH["Сессии Django<br/>login, logout, login_required"]
+    end
+
+    DB[("SQLite<br/>db.sqlite3")]
+    MEDIA[("media/<br/>фото туров, аватары")]
+
+    HTML --> URLS
+    JS --> URLS
+    CSS --- HTML
+
+    URLS --> TV
+    URLS --> UV
+
+    TV --> FORMS
+    UV --> FORMS
+    FORMS --> TM
+    FORMS --> UM
+
+    TV --> TM
+    UV --> UM
+
+    TV --> PAGES
+    UV --> PAGES
+    PAGES --> BASE
+    PAGES --> HTML
+
+    TV -.JSON.-> JS
+
+    TM --> DB
+    UM --> DB
+    ADMIN --> TM
+    ADMIN --> UM
+    AUTH --> UM
+
+    TM --- MEDIA
+    UM --- MEDIA
 ```
-╔══════════════════════════════════════════════════════════════════╗
-║                    Travel World SPA                             ║
-║                    (Браузер / Browser)                          ║
-║                                                                 ║
-║  ┌──────────────────────────────────────────────────────────┐  ║
-║  │                    index.html                             │  ║
-║  │              <div id="app"></div>                         │  ║
-║  │              <script src="/src/main.js">                  │  ║
-║  └──────────────────────────┬───────────────────────────────┘  ║
-║                             │ import                            ║
-║  ┌──────────────────────────▼───────────────────────────────┐  ║
-║  │                     main.js                               │  ║
-║  │  router.register('/home', homePage)                       │  ║
-║  │  router.register('/about', aboutPage)                     │  ║
-║  │  router.register('/offers', offersPage)                   │  ║
-║  │  router.register('/auth', authPage)                       │  ║
-║  │  router.init()                                            │  ║
-║  └───────────┬──────────────────────────────┬───────────────┘  ║
-║              │ import                        │ import           ║
-║  ┌───────────▼───────────┐    ┌─────────────▼─────────────┐   ║
-║  │  shared/utils/router  │    │    pages/                  │   ║
-║  │  ──────────────────── │    │  ──────────────────────    │   ║
-║  │  Router               │    │  homePage    /home         │   ║
-║  │  - routes: Map        │    │  aboutPage   /about        │   ║
-║  │  - render(path)       │    │  offersPage  /offers       │   ║
-║  │  - init()             │    │  authPage    /auth         │   ║
-║  └───────────┬───────────┘    └─────────────┬─────────────┘   ║
-║              │ uses                          │ uses             ║
-║  ┌───────────▼───────────┐    ┌─────────────▼─────────────┐   ║
-║  │  shared/utils/page    │    │  shared/helpers/           │   ║
-║  │  ──────────────────── │    │  ──────────────────────    │   ║
-║  │  Page factory         │    │  navigate.js               │   ║
-║  │  - html               │    │  pageStyles.js (CSS mgr)   │   ║
-║  │  - mount()            │    │                            │   ║
-║  │  - unmount()          │    └─────────────┬─────────────┘   ║
-║  └───────────────────────┘                  │ uses             ║
-║                                 ┌───────────▼─────────────┐   ║
-║  ┌────────────────────────┐     │  Browser APIs            │   ║
-║  │  shared/consts/        │     │  ──────────────────────  │   ║
-║  │  events.js             │     │  History API             │   ║
-║  │  - ROUTE_CHANGE        │     │  (pushState / popstate)  │   ║
-║  └────────────────────────┘     │  LocalStorage            │   ║
-║                                 │  DOM API                 │   ║
-║                                 └─────────────────────────┘   ║
-║                                                                 ║
-║  ┌──────────────────────────────────────────────────────────┐  ║
-║  │                 public/ (статические ресурсы)            │  ║
-║  │  styles/home.css   styles/about.css                      │  ║
-║  │  styles/auth.css   styles/offers.css                     │  ║
-║  │  images/hero-beach.jpg   images/tokyo.jpg                │  ║
-║  │  images/paris.jpg        images/bali.jpg                 │  ║
-║  │  icons.svg               favicon.svg                     │  ║
-║  └──────────────────────────────────────────────────────────┘  ║
-╚══════════════════════════════════════════════════════════════════╝
-```
+
+## Слои и ответственность
+
+| Слой | Файлы | За что отвечает |
+|---|---|---|
+| Маршруты | `config/urls.py`, `tours/urls.py`, `users/urls.py` | Сопоставляет адрес и функцию-представление |
+| View | `tours/views.py`, `users/views.py` | Достаёт данные, проверяет права, выбирает шаблон |
+| Template | `templates/` | Формирует HTML, наследуется от `base.html` |
+| Model | `tours/models.py`, `users/models.py` | Описывает таблицы, работает с базой через ORM |
+| Формы | `tours/forms.py`, `users/forms.py` | Проверяет данные до записи в базу |
+| Админ-панель | `admin.py` в обоих приложениях | Управление содержимым сайта |
+| Аутентификация | Встроенные механизмы Django | Сессии, вход, выход, ограничение доступа |
+| Статика | `static/` | Стили, скрипты, изображения |
 
 ---
 
-## Схема жизненного цикла страницы
+## Схема взаимодействия клиент — сервер
 
-![Жизненный цикл страницы](page-lifecycle.png)
+Обычный переход по ссылке: браузер запрашивает страницу, сервер
+собирает её целиком и отдаёт готовый HTML.
 
-```
-  navigate('/home')
-        │
-        ▼
-  Router.render('/home')
-        │
-        ├─▶ 1. currentCleanup()      ← вызов unmount предыдущей страницы
-        │        │
-        │        └─▶ removeEventListeners()
-        │            removeStyleLink()
-        │
-        ├─▶ 2. Поиск в routes Map
-        │
-        ├─▶ 3. page.mount(document)
-        │        │
-        │        ├─▶ app.innerHTML = page.html
-        │        ├─▶ CSS: <link href="/styles/home.css"> → <head>
-        │        ├─▶ document.title = page.title
-        │        └─▶ return cleanup function
-        │
-        └─▶ 4. history.pushState({}, '', '/home')
+```mermaid
+sequenceDiagram
+    participant B as Браузер
+    participant U as urls.py
+    participant V as views.py
+    participant M as models.py
+    participant D as SQLite
+    participant T as Шаблон
+
+    B->>U: GET /tour/5/
+    U->>V: tour_detail(request, pk=5)
+    V->>M: Tour.objects.get(pk=5)
+    M->>D: SELECT ... WHERE id = 5
+    D-->>M: строка таблицы
+    M-->>V: объект Tour
+    V->>T: tour_detail.html + данные
+    T-->>V: готовый HTML
+    V-->>B: 200 OK, HTML-страница
 ```
 
----
+## Схема AJAX-запроса
 
-## Схема авторизации
+Отправка отзыва: страница не перезагружается, сервер отвечает JSON,
+скрипт сам дописывает блок отзыва.
 
-![Последовательность авторизации](sequence-auth.png)
+```mermaid
+sequenceDiagram
+    participant U as Пользователь
+    participant JS as main.js
+    participant V as views.py
+    participant D as SQLite
 
-![Последовательность навигации](sequence-navigation.png)
-
-![Проверка route guard](sequence-guard.png)
-
-## Диаграмма классов
-
-![Диаграмма классов](class-design.png)
-
-```
-  Пользователь открывает /offers
-        │
-        ▼
-  Router.render('/offers')
-        │
-        ▼
-  Route Guard:
-  localStorage.getItem('credentials') ?
-        │
-   ДА  │                    НЕТ
-        ▼                    ▼
-  offersPage.mount()    navigate('/auth')
-        │                    │
-  Показ предложений     authPage.mount()
-                             │
-                        Форма купона
-                             │
-                   Ввод keyword + coupon
-                             │
-                   localStorage.setItem(...)
-                             │
-                        navigate('/offers')
+    U->>JS: нажал «Отправить отзыв»
+    JS->>JS: event.preventDefault()
+    JS->>V: POST /ajax/review/5/ + csrf-токен
+    V->>V: ReviewForm.is_valid()
+    V->>D: INSERT INTO tours_review
+    D-->>V: запись создана
+    V->>V: render_to_string("inc/review.html")
+    V-->>JS: JSON: ok, html, total
+    JS->>U: отзыв появился, счётчик обновлён
 ```
 
----
+## Обоснование выбора
 
-## Таблица соответствия маршрутов
+Django выбран потому, что даёт из коробки то, что требуется по заданию:
+ORM для работы с базой без ручного SQL, готовую систему пользователей
+с шифрованием паролей и сессиями, автоматическую админ-панель и
+шаблонизатор с наследованием. Стиль MTV разделяет данные, логику и
+представление, поэтому каждый файл отвечает за одно.
 
-| URL | Страница | CSS | Защита | Файл |
-|---|---|---|---|---|
-| /home | homePage | home.css | Нет | src/pages/home.js |
-| /about | aboutPage | about.css | Нет | src/pages/about.js |
-| /offers | offersPage | offers.css | Да (купон) | src/pages/offers.js |
-| /auth | authPage | auth.css | Нет | src/pages/auth.js |
+База — SQLite: она входит в состав Python, не требует установки
+и настройки сервера, чего достаточно для учебного проекта.
