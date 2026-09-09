@@ -7,7 +7,7 @@
 ## WBS — иерархическая структура работ
 
 ```mermaid
-flowchart TB
+flowchart LR
     P["Travel World"]
 
     P --> W1["1. Анализ"]
