@@ -1,184 +1,115 @@
-/*
-  Слой динамического обновления контента (AJAX).
+// AJAX-запросы: отзывы, избранное и подсказки поиска
 
-  Сохраняет подход первой версии интерфейса: работа напрямую с
-  браузерными API без сторонних библиотек. Здесь три сценария —
-  отправка отзыва, переключение избранного и подсказки поиска.
-  Все запросы уходят к обработчикам Django и получают JSON.
-*/
+function getCsrfToken() {
+    const input = document.querySelector("[name=csrfmiddlewaretoken]");
+    return input ? input.value : "";
+}
 
-(function () {
-  "use strict";
+// отправка отзыва без перезагрузки страницы
+const reviewForm = document.getElementById("reviewForm");
 
-  /** Читает значение cookie по имени. Нужно для передачи csrf-токена. */
-  function getCookie(name) {
-    var match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-
-  /** Токен берём из скрытого поля формы, иначе из cookie. */
-  function csrfToken(form) {
-    if (form) {
-      var field = form.querySelector("[name=csrfmiddlewaretoken]");
-      if (field) {
-        return field.value;
-      }
-    }
-    return getCookie("csrftoken");
-  }
-
-  function postJSON(url, body, form) {
-    return fetch(url, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": csrfToken(form),
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      body: body,
-    });
-  }
-
-  // ------------------------------------------------------- отзыв без перезагрузки
-
-  var reviewForm = document.getElementById("reviewForm");
-
-  if (reviewForm) {
+if (reviewForm) {
     reviewForm.addEventListener("submit", function (event) {
-      event.preventDefault();
+        event.preventDefault();
 
-      var errorBox = document.getElementById("reviewError");
-      var button = reviewForm.querySelector("button[type=submit]");
-      errorBox.textContent = "";
-      button.disabled = true;
+        const error = document.getElementById("reviewError");
+        error.textContent = "";
 
-      postJSON(reviewForm.action, new FormData(reviewForm), reviewForm)
-        .then(function (response) {
-          return response.json().then(function (data) {
-            return { ok: response.ok, data: data };
-          });
+        fetch(reviewForm.action, {
+            method: "POST",
+            headers: { "X-CSRFToken": getCsrfToken() },
+            body: new FormData(reviewForm),
         })
-        .then(function (result) {
-          if (!result.ok || !result.data.ok) {
-            errorBox.textContent = (result.data.errors || ["Не удалось отправить отзыв."]).join(" ");
-            return;
-          }
+            .then((response) => response.json())
+            .then((data) => {
+                if (!data.ok) {
+                    error.textContent = data.error;
+                    return;
+                }
 
-          var list = document.getElementById("reviewList");
-          var placeholder = document.getElementById("reviewEmpty");
-          if (placeholder) {
-            placeholder.remove();
-          }
+                const empty = document.getElementById("reviewEmpty");
+                if (empty) {
+                    empty.remove();
+                }
 
-          list.insertAdjacentHTML("afterbegin", result.data.html);
-          document.getElementById("reviewCount").textContent = "(" + result.data.total + ")";
-          reviewForm.reset();
-        })
-        .catch(function () {
-          errorBox.textContent = "Ошибка сети. Повторите попытку.";
-        })
-        .finally(function () {
-          button.disabled = false;
-        });
+                document.getElementById("reviewList").insertAdjacentHTML("afterbegin", data.html);
+                document.getElementById("reviewCount").textContent = "(" + data.total + ")";
+                reviewForm.reset();
+            });
     });
-  }
+}
 
-  // ------------------------------------------------------- избранное
+// кнопка "в избранное"
+const favoriteBtn = document.getElementById("favoriteBtn");
 
-  var favoriteBtn = document.getElementById("favoriteBtn");
-
-  if (favoriteBtn) {
+if (favoriteBtn) {
     favoriteBtn.addEventListener("click", function () {
-      favoriteBtn.disabled = true;
-
-      postJSON(favoriteBtn.dataset.url, null, null)
-        .then(function (response) {
-          return response.json();
+        fetch(favoriteBtn.dataset.url, {
+            method: "POST",
+            headers: { "X-CSRFToken": getCsrfToken() },
         })
-        .then(function (data) {
-          if (!data.ok) {
-            return;
-          }
-
-          if (data.in_favorites) {
-            favoriteBtn.textContent = "В избранном";
-            favoriteBtn.classList.remove("btn-outline-brand");
-            favoriteBtn.classList.add("btn-brand");
-          } else {
-            favoriteBtn.textContent = "В избранное";
-            favoriteBtn.classList.remove("btn-brand");
-            favoriteBtn.classList.add("btn-outline-brand");
-          }
-        })
-        .finally(function () {
-          favoriteBtn.disabled = false;
-        });
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.in_favorites) {
+                    favoriteBtn.textContent = "В избранном";
+                    favoriteBtn.className = "btn btn-brand w-100 mb-2";
+                } else {
+                    favoriteBtn.textContent = "В избранное";
+                    favoriteBtn.className = "btn btn-outline-brand w-100 mb-2";
+                }
+            });
     });
-  }
+}
 
-  // ------------------------------------------------------- подсказки поиска
+// подсказки в поиске
+const searchInput = document.getElementById("searchInput");
+const suggestBox = document.getElementById("searchSuggest");
 
-  var searchInput = document.getElementById("searchInput");
-  var suggestBox = document.getElementById("searchSuggest");
-
-  if (searchInput && suggestBox) {
-    var timer = null;
-
-    function hideSuggest() {
-      suggestBox.hidden = true;
-      suggestBox.innerHTML = "";
-    }
-
-    function renderSuggest(results) {
-      if (!results.length) {
-        hideSuggest();
-        return;
-      }
-
-      suggestBox.innerHTML = results
-        .map(function (item) {
-          return (
-            '<a class="list-group-item list-group-item-action" href="' +
-            item.url +
-            '">' +
-            item.title +
-            '<br><small>' +
-            item.country +
-            " · " +
-            item.price +
-            " ₽</small></a>"
-          );
-        })
-        .join("");
-      suggestBox.hidden = false;
-    }
+if (searchInput && suggestBox) {
+    let timer = null;
 
     searchInput.addEventListener("input", function () {
-      var query = searchInput.value.trim();
-      window.clearTimeout(timer);
+        clearTimeout(timer);
 
-      if (query.length < 2) {
-        hideSuggest();
-        return;
-      }
+        const query = searchInput.value.trim();
+        if (query.length < 2) {
+            suggestBox.hidden = true;
+            return;
+        }
 
-      timer = window.setTimeout(function () {
-        var url = searchInput.dataset.suggestUrl + "?q=" + encodeURIComponent(query);
+        // ждём, пока пользователь закончит печатать
+        timer = setTimeout(function () {
+            fetch(searchInput.dataset.suggestUrl + "?q=" + encodeURIComponent(query))
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.results.length === 0) {
+                        suggestBox.hidden = true;
+                        return;
+                    }
 
-        fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-          .then(function (response) {
-            return response.json();
-          })
-          .then(function (data) {
-            renderSuggest(data.results || []);
-          })
-          .catch(hideSuggest);
-      }, 250);
+                    let html = "";
+                    for (const tour of data.results) {
+                        html +=
+                            '<a class="list-group-item list-group-item-action" href="' +
+                            tour.url +
+                            '">' +
+                            tour.title +
+                            "<br><small>" +
+                            tour.country +
+                            " · " +
+                            tour.price +
+                            " ₽</small></a>";
+                    }
+
+                    suggestBox.innerHTML = html;
+                    suggestBox.hidden = false;
+                });
+        }, 300);
     });
 
     document.addEventListener("click", function (event) {
-      if (!suggestBox.contains(event.target) && event.target !== searchInput) {
-        hideSuggest();
-      }
+        if (event.target !== searchInput) {
+            suggestBox.hidden = true;
+        }
     });
-  }
-})();
+}

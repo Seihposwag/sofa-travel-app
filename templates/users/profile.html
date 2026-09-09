@@ -15,8 +15,8 @@
             </div>
           {% endif %}
 
-          <h2 class="h5 mb-0">{{ user.display_name }}</h2>
-          <p class="text-secondary small">{{ user.role }}</p>
+          <h2 class="h5 mb-0">{{ user.username }}</h2>
+          <p class="text-secondary small">{% if user.is_staff %}Администратор{% else %}Пользователь{% endif %}</p>
 
           <dl class="row text-start small mb-0">
             <dt class="col-7 text-secondary fw-normal">Опубликовано туров</dt>

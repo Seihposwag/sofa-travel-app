@@ -15,7 +15,7 @@
               {{ country.description|default:"Описание направления пока не добавлено."|truncatewords:22 }}
             </p>
           </div>
-          <div class="card-footer bg-white text-secondary small">Предложений: {{ country.total }}</div>
+          <div class="card-footer bg-white text-secondary small">Предложений: {{ country.tours.count }}</div>
         </div>
       </div>
     {% empty %}

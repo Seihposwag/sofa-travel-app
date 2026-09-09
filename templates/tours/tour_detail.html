@@ -21,7 +21,7 @@
       <h1 class="h3">{{ tour.title }}</h1>
       <p class="text-secondary small">
         Направление: <a href="{{ tour.country.get_absolute_url }}">{{ tour.country.title }}</a> ·
-        Автор: {{ tour.author.display_name|default:"не указан" }} ·
+        Автор: {{ tour.author.username|default:"не указан" }} ·
         Опубликовано {{ tour.created_at|date:"d.m.Y" }} ·
         Просмотров: {{ tour.views }}
       </p>

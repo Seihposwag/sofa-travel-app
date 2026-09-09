@@ -21,7 +21,7 @@
         {% for item in countries %}
           <a class="list-group-item list-group-item-action d-flex justify-content-between {% if country and country.pk == item.pk %}active{% endif %}"
              href="{{ item.get_absolute_url }}">
-            {{ item.title }}<span class="badge text-bg-secondary">{{ item.total }}</span>
+            {{ item.title }}<span class="badge text-bg-secondary">{{ item.tours.count }}</span>
           </a>
         {% empty %}
           <span class="list-group-item text-secondary">Направления пока не добавлены</span>

@@ -1,30 +1,19 @@
-"""
-Настройки Django-проекта «Бюро путешествий» (Travel World).
-
-Траектория А: full-stack Django с серверным рендерингом шаблонов,
-сессионной аутентификацией и AJAX-запросами для динамики.
-"""
-
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-# BASE_DIR — каталог backend/, ROOT_DIR — корень репозитория,
-# в нём лежат templates/, static/ и media/ (структура из методических указаний).
 BASE_DIR = Path(__file__).resolve().parent.parent
+# templates, static и media лежат в корне репозитория, рядом с backend
 ROOT_DIR = BASE_DIR.parent
 
 load_dotenv(ROOT_DIR / ".env")
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "django-insecure-development-key-replace-in-production",
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key-for-development-only")
 
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -33,8 +22,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tours.apps.ToursConfig",
-    "users.apps.UsersConfig",
+    "tours",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -94,13 +83,6 @@ MEDIA_ROOT = ROOT_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Пользовательская модель из приложения users (расширяет AbstractUser).
 AUTH_USER_MODEL = "users.User"
 
-# Маршруты сессионной аутентификации.
 LOGIN_URL = "users:login"
-LOGIN_REDIRECT_URL = "tours:tour_list"
-LOGOUT_REDIRECT_URL = "tours:tour_list"
-
-# Количество элементов на странице для представлений с пагинацией.
-PAGINATE_BY = 6

@@ -1,63 +1,51 @@
-"""Формы приложения users: регистрация, вход и редактирование профиля."""
-
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 from .models import User
 
-CONTROL = {"class": "form-control"}
-
 
 class RegisterForm(UserCreationForm):
-    """Регистрация нового пользователя."""
-
-    username = forms.CharField(
-        label="Имя пользователя",
-        max_length=150,
-        widget=forms.TextInput(CONTROL),
-    )
-    email = forms.EmailField(label="Электронная почта", widget=forms.EmailInput(CONTROL))
-    password1 = forms.CharField(label="Пароль", widget=forms.PasswordInput(CONTROL))
-    password2 = forms.CharField(
-        label="Подтверждение пароля",
-        widget=forms.PasswordInput(CONTROL),
-    )
+    email = forms.EmailField(label="Почта")
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2")
+        fields = ["username", "email", "password1", "password2"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # чтобы поля выглядели как остальные элементы Bootstrap
+        for field in self.fields.values():
+            field.widget.attrs["class"] = "form-control"
 
     def clean_email(self):
-        email = self.cleaned_data["email"].lower()
+        email = self.cleaned_data["email"]
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Пользователь с такой почтой уже зарегистрирован.")
+            raise forms.ValidationError("Такая почта уже зарегистрирована.")
         return email
 
 
 class LoginForm(AuthenticationForm):
-    """Вход в систему по логину и паролю."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs["class"] = "form-control"
 
-    username = forms.CharField(label="Имя пользователя", widget=forms.TextInput(CONTROL))
-    password = forms.CharField(label="Пароль", widget=forms.PasswordInput(CONTROL))
 
-
-class ProfileUpdateForm(forms.ModelForm):
-    """Редактирование личных данных пользователя."""
-
+class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ("first_name", "last_name", "email", "phone", "bio", "avatar")
+        fields = ["first_name", "last_name", "email", "phone", "bio", "avatar"]
         widgets = {
-            "first_name": forms.TextInput(CONTROL),
-            "last_name": forms.TextInput(CONTROL),
-            "email": forms.EmailInput(CONTROL),
-            "phone": forms.TextInput({**CONTROL, "placeholder": "+7 (000) 000-00-00"}),
-            "bio": forms.Textarea({**CONTROL, "rows": 4}),
-            "avatar": forms.ClearableFileInput({"class": "form-control"}),
+            "first_name": forms.TextInput(attrs={"class": "form-control"}),
+            "last_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "phone": forms.TextInput(attrs={"class": "form-control"}),
+            "bio": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "avatar": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
     def clean_email(self):
-        email = self.cleaned_data["email"].lower()
+        email = self.cleaned_data["email"]
         if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Эта почта занята другим пользователем.")
         return email

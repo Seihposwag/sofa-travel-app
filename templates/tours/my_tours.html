@@ -31,7 +31,7 @@
                 <span class="badge text-bg-secondary">Черновик</span>
               {% endif %}
             </td>
-            <td class="text-center">{{ tour.reviews_total }}</td>
+            <td class="text-center">{{ tour.reviews.count }}</td>
             <td class="text-end text-nowrap">
               <a href="{% url 'tours:tour_update' tour.pk %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
               <a href="{% url 'tours:tour_delete' tour.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
