@@ -53,7 +53,7 @@ def user_logout(request):
 @login_required
 def profile(request):
     if request.method == "POST":
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        form = ProfileForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, "Профиль обновлён.")
@@ -64,7 +64,6 @@ def profile(request):
     return render(request, "users/profile.html", {
         "form": form,
         "tours_total": request.user.tours.count(),
-        "favorites_total": request.user.favorites.count(),
         "reviews_total": request.user.reviews.count(),
         "page_title": "Профиль",
     })

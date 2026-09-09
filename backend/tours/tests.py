@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Country, Favorite, Review, Tour
+from .models import Country, Review, Tour
 
 User = get_user_model()
 
@@ -54,14 +54,12 @@ class TourTests(TestCase):
             title="Рим", description="Колизей", price=87000,
             country=italy, author=self.author,
         )
-        url = reverse("tours:tours_by_country", args=[italy.pk])
-        response = self.client.get(url)
+        response = self.client.get(reverse("tours:tours_by_country", args=[italy.pk]))
         self.assertEqual(response.context["page_obj"].paginator.count, 1)
 
-    def test_views_counter(self):
-        self.client.get(self.tour.get_absolute_url())
-        self.tour.refresh_from_db()
-        self.assertEqual(self.tour.views, 1)
+    def test_tour_page_opens(self):
+        response = self.client.get(self.tour.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
 
     def test_guest_cannot_create(self):
         response = self.client.get(reverse("tours:tour_create"))
@@ -75,10 +73,21 @@ class TourTests(TestCase):
             "description": "Бунгало над водой",
             "price": "265000",
             "duration_days": 8,
-            "is_published": "on",
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Tour.objects.get(title="Мальдивы").author, self.author)
+
+    def test_price_must_be_positive(self):
+        self.client.login(username="author", password="test12345")
+        response = self.client.post(reverse("tours:tour_create"), {
+            "title": "Бесплатный тур",
+            "country": self.country.pk,
+            "description": "Описание",
+            "price": "0",
+            "duration_days": 5,
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Tour.objects.filter(title="Бесплатный тур").exists())
 
     def test_cannot_edit_other_tour(self):
         self.client.login(username="other", password="test12345")
@@ -97,20 +106,8 @@ class TourTests(TestCase):
         self.client.post(reverse("tours:tour_delete", args=[self.tour.pk]))
         self.assertFalse(Tour.objects.filter(pk=self.tour.pk).exists())
 
-    def test_price_must_be_positive(self):
-        self.client.login(username="author", password="test12345")
-        response = self.client.post(reverse("tours:tour_create"), {
-            "title": "Бесплатный тур",
-            "country": self.country.pk,
-            "description": "Описание",
-            "price": "0",
-            "duration_days": 5,
-        })
-        self.assertEqual(response.status_code, 200)
-        self.assertFalse(Tour.objects.filter(title="Бесплатный тур").exists())
 
-
-class AjaxTests(TestCase):
+class ReviewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username="traveller", email="t@mail.ru", password="test12345"
@@ -123,11 +120,11 @@ class AjaxTests(TestCase):
             country=self.country,
             author=self.user,
         )
+        self.url = reverse("tours:review_add_ajax", args=[self.tour.pk])
 
     def test_add_review(self):
         self.client.login(username="traveller", password="test12345")
-        url = reverse("tours:review_add_ajax", args=[self.tour.pk])
-        response = self.client.post(url, {"text": "Хорошая организация поездки"})
+        response = self.client.post(self.url, {"text": "Хорошая организация поездки"})
 
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
@@ -137,29 +134,12 @@ class AjaxTests(TestCase):
 
     def test_short_review_not_saved(self):
         self.client.login(username="traveller", password="test12345")
-        url = reverse("tours:review_add_ajax", args=[self.tour.pk])
-        response = self.client.post(url, {"text": "Норм"})
+        response = self.client.post(self.url, {"text": "Норм"})
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Review.objects.count(), 0)
 
-    def test_favorite_toggle(self):
-        self.client.login(username="traveller", password="test12345")
-        url = reverse("tours:favorite_toggle_ajax", args=[self.tour.pk])
-
-        self.client.post(url)
-        self.assertEqual(Favorite.objects.count(), 1)
-
-        self.client.post(url)
-        self.assertEqual(Favorite.objects.count(), 0)
-
-    def test_search_suggest(self):
-        url = reverse("tours:search_suggest_ajax")
-
-        response = self.client.get(url, {"q": "Р"})
-        self.assertEqual(json.loads(response.content)["results"], [])
-
-        response = self.client.get(url, {"q": "Рим"})
-        results = json.loads(response.content)["results"]
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["title"], "Рим и Флоренция")
+    def test_guest_cannot_add_review(self):
+        response = self.client.post(self.url, {"text": "Отзыв без входа"})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Review.objects.count(), 0)

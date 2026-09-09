@@ -22,13 +22,8 @@
       <p class="text-secondary small">
         Направление: <a href="{{ tour.country.get_absolute_url }}">{{ tour.country.title }}</a> ·
         Автор: {{ tour.author.username|default:"не указан" }} ·
-        Опубликовано {{ tour.created_at|date:"d.m.Y" }} ·
-        Просмотров: {{ tour.views }}
+        Добавлен {{ tour.created_at|date:"d.m.Y" }}
       </p>
-
-      {% if not tour.is_published %}
-        <div class="alert alert-warning">Тур снят с публикации и виден только вам.</div>
-      {% endif %}
 
       <p>{{ tour.description|linebreaksbr }}</p>
     </div>
@@ -40,21 +35,9 @@
             <span class="h4 text-brand mb-0">{{ tour.price|floatformat:0 }} ₽</span>
             <span class="text-secondary">{{ tour.duration_days }} дней</span>
           </div>
-          <hr>
-
-          {% if user.is_authenticated %}
-            <button class="btn w-100 mb-2 {% if in_favorites %}btn-brand{% else %}btn-outline-brand{% endif %}"
-                    id="favoriteBtn"
-                    data-url="{% url 'tours:favorite_toggle_ajax' tour.pk %}">
-              {% if in_favorites %}В избранном{% else %}В избранное{% endif %}
-            </button>
-          {% else %}
-            <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn btn-outline-brand w-100 mb-2">
-              Войдите, чтобы сохранить тур
-            </a>
-          {% endif %}
 
           {% if can_edit %}
+            <hr>
             <div class="d-flex gap-2">
               <a href="{% url 'tours:tour_update' tour.pk %}" class="btn btn-outline-secondary flex-grow-1">Изменить</a>
               <a href="{% url 'tours:tour_delete' tour.pk %}" class="btn btn-outline-danger flex-grow-1">Удалить</a>

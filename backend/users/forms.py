@@ -34,14 +34,13 @@ class LoginForm(AuthenticationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "phone", "bio", "avatar"]
+        fields = ["first_name", "last_name", "email", "phone", "bio"]
         widgets = {
             "first_name": forms.TextInput(attrs={"class": "form-control"}),
             "last_name": forms.TextInput(attrs={"class": "form-control"}),
             "email": forms.EmailInput(attrs={"class": "form-control"}),
             "phone": forms.TextInput(attrs={"class": "form-control"}),
             "bio": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
-            "avatar": forms.ClearableFileInput(attrs={"class": "form-control"}),
         }
 
     def clean_email(self):

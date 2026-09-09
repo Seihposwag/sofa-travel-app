@@ -6,7 +6,7 @@ from .models import Review, Tour
 class TourForm(forms.ModelForm):
     class Meta:
         model = Tour
-        fields = ["title", "country", "description", "price", "duration_days", "photo", "is_published"]
+        fields = ["title", "country", "description", "price", "duration_days", "photo"]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "country": forms.Select(attrs={"class": "form-select"}),
@@ -14,7 +14,6 @@ class TourForm(forms.ModelForm):
             "price": forms.NumberInput(attrs={"class": "form-control"}),
             "duration_days": forms.NumberInput(attrs={"class": "form-control"}),
             "photo": forms.ClearableFileInput(attrs={"class": "form-control"}),
-            "is_published": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def clean_price(self):

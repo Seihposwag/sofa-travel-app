@@ -19,7 +19,7 @@ flowchart TB
         URLS["config/urls.py<br/>tours/urls.py<br/>users/urls.py"]
 
         subgraph VIEWS["View — что показать"]
-            TV["tours/views.py<br/>9 представлений"]
+            TV["tours/views.py<br/>7 представлений"]
             UV["users/views.py<br/>4 представления"]
         end
 
@@ -29,7 +29,7 @@ flowchart TB
         end
 
         subgraph MODELS["Model — что хранить"]
-            TM["tours/models.py<br/>Country, Tour, Review, Favorite"]
+            TM["tours/models.py<br/>Country, Tour, Review"]
             UM["users/models.py<br/>User"]
         end
 
@@ -39,7 +39,7 @@ flowchart TB
     end
 
     DB[("SQLite<br/>db.sqlite3")]
-    MEDIA[("media/<br/>фото туров, аватары")]
+    MEDIA[("media/<br/>фото туров")]
 
     HTML --> URLS
     JS --> URLS
@@ -70,7 +70,6 @@ flowchart TB
     AUTH --> UM
 
     TM --- MEDIA
-    UM --- MEDIA
 ```
 
 ## Слои и ответственность

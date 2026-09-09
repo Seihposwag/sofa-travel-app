@@ -21,18 +21,11 @@
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav me-auto">
         <li class="nav-item"><a class="nav-link" href="{% url 'tours:tour_list' %}">Каталог</a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'tours:country_list' %}">Направления</a></li>
-        {% if user.is_authenticated %}
-          <li class="nav-item"><a class="nav-link" href="{% url 'tours:my_tours' %}">Мои туры</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'tours:favorites_list' %}">Избранное</a></li>
-        {% endif %}
       </ul>
 
-      <form class="d-flex me-lg-3 position-relative" role="search" action="{% url 'tours:tour_list' %}" method="get">
-        <input class="form-control form-control-sm" type="search" name="q" id="searchInput"
-               value="{{ query|default:'' }}" placeholder="Поиск тура" aria-label="Поиск тура"
-               autocomplete="off" data-suggest-url="{% url 'tours:search_suggest_ajax' %}">
-        <div class="search-suggest list-group shadow" id="searchSuggest" hidden></div>
+      <form class="d-flex me-lg-3" role="search" action="{% url 'tours:tour_list' %}" method="get">
+        <input class="form-control form-control-sm" type="search" name="q"
+               value="{{ query|default:'' }}" placeholder="Поиск тура" aria-label="Поиск тура">
       </form>
 
       <ul class="navbar-nav">

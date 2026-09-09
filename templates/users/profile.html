@@ -7,22 +7,12 @@
     <div class="col-lg-4">
       <div class="card shadow-sm">
         <div class="card-body text-center">
-          {% if user.avatar %}
-            <img src="{{ user.avatar.url }}" class="rounded-circle mb-3 profile-avatar" alt="Аватар">
-          {% else %}
-            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3 profile-avatar">
-              <span class="h2 text-secondary mb-0">{{ user.username|slice:":1"|upper }}</span>
-            </div>
-          {% endif %}
-
           <h2 class="h5 mb-0">{{ user.username }}</h2>
           <p class="text-secondary small">{% if user.is_staff %}Администратор{% else %}Пользователь{% endif %}</p>
 
           <dl class="row text-start small mb-0">
             <dt class="col-7 text-secondary fw-normal">Опубликовано туров</dt>
             <dd class="col-5 text-end mb-1">{{ tours_total }}</dd>
-            <dt class="col-7 text-secondary fw-normal">В избранном</dt>
-            <dd class="col-5 text-end mb-1">{{ favorites_total }}</dd>
             <dt class="col-7 text-secondary fw-normal">Оставлено отзывов</dt>
             <dd class="col-5 text-end mb-1">{{ reviews_total }}</dd>
             <dt class="col-7 text-secondary fw-normal">Дата регистрации</dt>
@@ -37,7 +27,7 @@
         <div class="card-body">
           <h2 class="h5 mb-3">Личные данные</h2>
 
-          <form method="post" enctype="multipart/form-data" novalidate>
+          <form method="post" novalidate>
             {% csrf_token %}
 
             {% if form.non_field_errors %}

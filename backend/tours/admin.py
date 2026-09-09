@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Country, Favorite, Review, Tour
+from .models import Country, Review, Tour
 
 
 @admin.register(Country)
@@ -11,21 +11,14 @@ class CountryAdmin(admin.ModelAdmin):
 
 @admin.register(Tour)
 class TourAdmin(admin.ModelAdmin):
-    list_display = ["title", "country", "price", "duration_days", "author", "is_published", "views"]
-    list_filter = ["is_published", "country"]
-    list_editable = ["price", "is_published"]
+    list_display = ["title", "country", "price", "duration_days", "author", "created_at"]
+    list_filter = ["country"]
+    list_editable = ["price"]
     search_fields = ["title", "description"]
-    readonly_fields = ["views", "created_at", "updated_at"]
+    readonly_fields = ["created_at"]
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ["tour", "author", "created_at", "is_active"]
-    list_filter = ["is_active"]
-    list_editable = ["is_active"]
+    list_display = ["tour", "author", "created_at"]
     search_fields = ["text"]
-
-
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ["user", "tour", "created_at"]

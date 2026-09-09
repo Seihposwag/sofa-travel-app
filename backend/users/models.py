@@ -5,7 +5,6 @@ from django.db import models
 class User(AbstractUser):
     email = models.EmailField("Почта", unique=True)
     bio = models.TextField("О себе", blank=True)
-    avatar = models.ImageField("Аватар", upload_to="avatars/", blank=True, null=True)
     phone = models.CharField("Телефон", max_length=20, blank=True)
 
     class Meta:

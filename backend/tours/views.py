@@ -7,13 +7,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 
 from .forms import ReviewForm, TourForm
-from .models import Country, Favorite, Tour
+from .models import Country, Tour
 
 TOURS_ON_PAGE = 6
 
 
 def tour_list(request):
-    tours = Tour.objects.filter(is_published=True).select_related("country", "author")
+    tours = Tour.objects.select_related("country", "author")
 
     # поиск по названию и описанию
     query = request.GET.get("q", "")
@@ -33,7 +33,7 @@ def tour_list(request):
 
 def tours_by_country(request, pk):
     country = get_object_or_404(Country, pk=pk)
-    tours = Tour.objects.filter(is_published=True, country=country).select_related("author")
+    tours = Tour.objects.filter(country=country).select_related("author")
 
     paginator = Paginator(tours, TOURS_ON_PAGE)
     page = paginator.get_page(request.GET.get("page"))
@@ -46,13 +46,6 @@ def tours_by_country(request, pk):
     })
 
 
-def country_list(request):
-    return render(request, "tours/country_list.html", {
-        "countries": Country.objects.all(),
-        "page_title": "Направления",
-    })
-
-
 def tour_detail(request, pk):
     tour = get_object_or_404(Tour.objects.select_related("country", "author"), pk=pk)
 
@@ -60,22 +53,10 @@ def tour_detail(request, pk):
         request.user == tour.author or request.user.is_staff
     )
 
-    if not tour.is_published and not can_edit:
-        messages.warning(request, "Этот тур снят с публикации.")
-        return redirect("tours:tour_list")
-
-    tour.views = tour.views + 1
-    tour.save()
-
-    in_favorites = False
-    if request.user.is_authenticated:
-        in_favorites = Favorite.objects.filter(user=request.user, tour=tour).exists()
-
     return render(request, "tours/tour_detail.html", {
         "tour": tour,
-        "reviews": tour.reviews.filter(is_active=True).select_related("author"),
+        "reviews": tour.reviews.select_related("author"),
         "review_form": ReviewForm(),
-        "in_favorites": in_favorites,
         "can_edit": can_edit,
         "page_title": tour.title,
     })
@@ -145,39 +126,7 @@ def tour_delete(request, pk):
     })
 
 
-@login_required
-def my_tours(request):
-    tours = Tour.objects.filter(author=request.user).select_related("country")
-
-    paginator = Paginator(tours, TOURS_ON_PAGE)
-    page = paginator.get_page(request.GET.get("page"))
-
-    return render(request, "tours/my_tours.html", {
-        "page_obj": page,
-        "page_title": "Мои туры",
-    })
-
-
-@login_required
-def favorites_list(request):
-    tours = Tour.objects.filter(
-        is_published=True, favorites__user=request.user
-    ).select_related("country", "author")
-
-    paginator = Paginator(tours, TOURS_ON_PAGE)
-    page = paginator.get_page(request.GET.get("page"))
-
-    return render(request, "tours/tour_list.html", {
-        "page_obj": page,
-        "countries": Country.objects.all(),
-        "page_title": "Избранное",
-        "empty_hint": "Вы пока ничего не добавили в избранное.",
-    })
-
-
-# --- AJAX ---
-
-
+# отзыв добавляется без перезагрузки страницы
 @login_required
 def review_add_ajax(request, pk):
     tour = get_object_or_404(Tour, pk=pk)
@@ -192,41 +141,4 @@ def review_add_ajax(request, pk):
     review.save()
 
     html = render_to_string("inc/review.html", {"review": review})
-    return JsonResponse({
-        "ok": True,
-        "html": html,
-        "total": tour.reviews.filter(is_active=True).count(),
-    })
-
-
-@login_required
-def favorite_toggle_ajax(request, pk):
-    tour = get_object_or_404(Tour, pk=pk)
-    favorite, created = Favorite.objects.get_or_create(user=request.user, tour=tour)
-
-    if not created:
-        favorite.delete()
-
-    return JsonResponse({"ok": True, "in_favorites": created})
-
-
-def search_suggest_ajax(request):
-    query = request.GET.get("q", "")
-
-    if len(query) < 2:
-        return JsonResponse({"results": []})
-
-    tours = Tour.objects.filter(is_published=True).filter(
-        Q(title__icontains=query) | Q(country__title__icontains=query)
-    ).select_related("country")[:6]
-
-    results = []
-    for tour in tours:
-        results.append({
-            "title": tour.title,
-            "country": tour.country.title,
-            "price": int(tour.price),
-            "url": tour.get_absolute_url(),
-        })
-
-    return JsonResponse({"results": results})
+    return JsonResponse({"ok": True, "html": html, "total": tour.reviews.count()})

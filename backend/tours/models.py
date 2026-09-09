@@ -27,9 +27,6 @@ class Tour(models.Model):
     duration_days = models.PositiveIntegerField("Дней", default=7)
     photo = models.ImageField("Фото", upload_to="tours/", blank=True, null=True)
     created_at = models.DateTimeField("Создан", auto_now_add=True, db_index=True)
-    updated_at = models.DateTimeField("Изменён", auto_now=True)
-    is_published = models.BooleanField("Опубликован", default=True, db_index=True)
-    views = models.PositiveIntegerField("Просмотры", default=0)
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -68,7 +65,6 @@ class Review(models.Model):
     )
     text = models.TextField("Текст")
     created_at = models.DateTimeField("Дата", auto_now_add=True)
-    is_active = models.BooleanField("Показывать", default=True)
 
     class Meta:
         verbose_name = "Отзыв"
@@ -77,26 +73,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Отзыв от {self.author}"
-
-
-class Favorite(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="favorites",
-        verbose_name="Пользователь",
-    )
-    tour = models.ForeignKey(
-        Tour, on_delete=models.CASCADE, related_name="favorites", verbose_name="Тур"
-    )
-    created_at = models.DateTimeField("Дата", auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Избранное"
-        verbose_name_plural = "Избранное"
-        ordering = ["-created_at"]
-        # один тур нельзя добавить в избранное два раза
-        unique_together = ["user", "tour"]
-
-    def __str__(self):
-        return f"{self.user} - {self.tour}"

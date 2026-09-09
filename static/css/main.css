@@ -1,21 +1,10 @@
-/*
-  Собственные стили поверх Bootstrap 5.
-  Палитра перенесена из первой версии интерфейса: синяя основа
-  и оранжевый акцент для действий.
-*/
+/* Свои стили поверх Bootstrap: синяя основа и оранжевый акцент */
 
 :root {
   --brand: #0d4b8f;
-  --brand-dark: #093a70;
   --accent: #ff7b00;
   --accent-dark: #e66d00;
 }
-
-body {
-  font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-}
-
-/* --- Фирменные цвета --------------------------------------------------- */
 
 .bg-brand {
   background-color: var(--brand) !important;
@@ -38,19 +27,6 @@ body {
   color: #fff;
 }
 
-.btn-outline-brand {
-  border-color: var(--accent);
-  color: var(--accent-dark);
-  background-color: transparent;
-}
-
-.btn-outline-brand:hover,
-.btn-outline-brand:focus {
-  background-color: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
 .navbar-dark .navbar-nav .nav-link {
   color: rgba(255, 255, 255, 0.85);
 }
@@ -59,10 +35,10 @@ body {
   color: #fff;
 }
 
-/* Кнопка выхода оформлена как ссылка навигации */
+/* кнопка выхода оформлена как ссылка меню */
 .navbar .btn-link.nav-link {
   border: 0;
-  padding: 0.5rem 0.5rem;
+  padding: 0.5rem;
   text-decoration: none;
   color: rgba(255, 255, 255, 0.85);
 }
@@ -71,54 +47,11 @@ body {
   color: #fff;
 }
 
-/* --- Карточки туров ---------------------------------------------------- */
-
-.tour-card {
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.tour-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.12) !important;
-}
-
 .tour-card__img {
   height: 190px;
   object-fit: cover;
 }
 
-/* --- Подсказки поиска -------------------------------------------------- */
-
-.search-suggest {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  z-index: 1050;
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.search-suggest .list-group-item small {
-  color: #6c757d;
-}
-
-/* --- Профиль ----------------------------------------------------------- */
-
-.profile-avatar {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-}
-
-/* --- Отзывы ------------------------------------------------------------ */
-
 .review-item:last-child {
   border-bottom: 0 !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tour-card {
-    transition: none;
-  }
 }
