@@ -14,6 +14,18 @@
     <div class="col-lg-7">
       {% if tour.photo %}
         <img src="{{ tour.photo.url }}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Япония" %}
+        <img src="{% static 'images/tokyo.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Франция" %}
+        <img src="{% static 'images/paris.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Индонезия" %}
+        <img src="{% static 'images/bali.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Мальдивы" %}
+        <img src="{% static 'images/maldives.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Италия" %}
+        <img src="{% static 'images/italy.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
+      {% elif tour.country.title == "Турция" %}
+        <img src="{% static 'images/turkey.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
       {% else %}
         <img src="{% static 'images/hero-beach.jpg' %}" class="img-fluid rounded shadow-sm mb-3" alt="{{ tour.title }}">
       {% endif %}
