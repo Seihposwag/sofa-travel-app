@@ -7,70 +7,23 @@
 
 ## Диаграмма компонентов
 
-```mermaid
-flowchart TB
-    subgraph BROWSER["Браузер"]
-        HTML["HTML-страницы"]
-        JS["main.js<br/>AJAX-запросы"]
-        CSS["Bootstrap 5 + main.css"]
-    end
+![Диаграмма компонентов приложения](../images/diagrams/components.png)
 
-    subgraph DJANGO["Django"]
-        URLS["config/urls.py<br/>tours/urls.py<br/>users/urls.py"]
+Приложение разделено на два модуля предметной области. Модуль `tours`
+содержит модели направлений, туров и отзывов вместе с их представлениями
+и шаблонами. Модуль `users` отвечает за учётные записи, аутентификацию
+и разграничение доступа.
 
-        subgraph VIEWS["View — что показать"]
-            TV["tours/views.py<br/>7 представлений"]
-            UV["users/views.py<br/>4 представления"]
-        end
-
-        subgraph TPL["Template — как показать"]
-            BASE["base.html"]
-            PAGES["tours/*.html<br/>users/*.html<br/>inc/*.html"]
-        end
-
-        subgraph MODELS["Model — что хранить"]
-            TM["tours/models.py<br/>Country, Tour, Review"]
-            UM["users/models.py<br/>User"]
-        end
-
-        FORMS["forms.py<br/>проверка данных"]
-        ADMIN["admin.py<br/>админ-панель"]
-        AUTH["Сессии Django<br/>login, logout, login_required"]
-    end
-
-    DB[("SQLite<br/>db.sqlite3")]
-    MEDIA[("media/<br/>фото туров")]
-
-    HTML --> URLS
-    JS --> URLS
-    CSS --- HTML
-
-    URLS --> TV
-    URLS --> UV
-
-    TV --> FORMS
-    UV --> FORMS
-    FORMS --> TM
-    FORMS --> UM
-
-    TV --> TM
-    UV --> UM
-
-    TV --> PAGES
-    UV --> PAGES
-    PAGES --> BASE
-    PAGES --> HTML
-
-    TV -.JSON.-> JS
-
-    TM --> DB
-    UM --> DB
-    ADMIN --> TM
-    ADMIN --> UM
-    AUTH --> UM
-
-    TM --- MEDIA
-```
+| Компонент | Файлы | Ответственность |
+|---|---|---|
+| Схема адресов | `config/urls.py`, `tours/urls.py`, `users/urls.py` | Сопоставление адреса запроса и функции-обработчика |
+| Представления | `tours/views.py` — 7, `users/views.py` — 4 | Получение данных, проверка прав, выбор шаблона |
+| Формы | `tours/forms.py`, `users/forms.py` | Проверка данных до записи в базу, пять классов |
+| Шаблоны | `templates/` — 11 файлов | Разметка с наследованием от `base.html` |
+| Модели | `tours/models.py`, `users/models.py` | Country, Tour, Review, User |
+| Панель управления | `tours/admin.py`, `users/admin.py` | Управление содержимым и учётными записями |
+| Сессии и доступ | встроенные механизмы Django | `login_required`, три уровня доступа |
+| Хранилище | `db.sqlite3`, каталог `media/` | Данные и загруженные фотографии |
 
 ## Слои и ответственность
 
