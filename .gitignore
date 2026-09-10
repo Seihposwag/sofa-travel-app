@@ -24,3 +24,7 @@ db.sqlite3-journal
 .DS_Store
 Thumbs.db
 *.sw?
+
+# каталоги инструментов разработчика
+.claude/
+.codex/
